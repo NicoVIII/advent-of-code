@@ -1,5 +1,5 @@
 use itertools::Itertools;
-use std::fs;
+use std::{fs, str::Lines};
 
 #[derive(Debug)]
 pub struct Calories(u32);
@@ -9,20 +9,17 @@ struct Elf {
     calories: Vec<Calories>,
 }
 
-#[derive(Debug)]
-struct Input {
-    elfs: Vec<Elf>,
+fn read_input() -> String {
+    fs::read_to_string("input.txt").expect("Should have been able to read the file")
 }
 
-fn read_input() -> Input {
-    let input = fs::read_to_string("input.txt").expect("Should have been able to read the file");
-    let lines = input.lines();
-    let mut elfs: Vec<Elf> = Vec::new();
+fn parse_input(input: Lines<'_>) -> Vec<Elf> {
+    let mut elves: Vec<Elf> = Vec::new();
     let mut calories: Vec<Calories> = Vec::new();
-    for line in lines {
+    for line in input {
         let trimmed_line = line.trim();
         if trimmed_line.is_empty() {
-            elfs.push(Elf { calories });
+            elves.push(Elf { calories });
             calories = Vec::new();
         } else {
             let calories_value = trimmed_line.parse::<u32>().unwrap();
@@ -31,14 +28,13 @@ fn read_input() -> Input {
     }
     // Push last elf
     if !calories.is_empty() {
-        elfs.push(Elf { calories });
+        elves.push(Elf { calories });
     }
-    Input { elfs }
+    elves
 }
 
-fn find_max_calories(input: &Input) -> Calories {
-    let value = input
-        .elfs
+fn find_max_calories(elves: &[Elf]) -> Calories {
+    let value = elves
         .iter()
         // Sum up elfs calories
         .map(|elf| elf.calories.iter().map(|calories| calories.0).sum::<u32>())
@@ -47,9 +43,8 @@ fn find_max_calories(input: &Input) -> Calories {
     Calories(value)
 }
 
-fn find_max_calories_for_x(input: &Input, x: usize) -> Calories {
-    let value = input
-        .elfs
+fn find_max_calories_for_x(elves: &[Elf], x: usize) -> Calories {
+    let value = elves
         .iter()
         // Sum up elfs calories
         .map(|elf| elf.calories.iter().map(|calories| calories.0).sum::<u32>())
@@ -61,13 +56,15 @@ fn find_max_calories_for_x(input: &Input, x: usize) -> Calories {
 }
 
 fn main() {
+    // Prepare input
     let input = read_input();
+    let elves = parse_input(input.lines());
 
     // Part 1
-    let max_calories = find_max_calories(&input);
-    println!("Max calories on one elf: {:?}", max_calories);
+    let max_calories = find_max_calories(&elves);
+    println!("Calories - Part 1: {:?}", max_calories.0);
 
     // Part 2
-    let max_calories_three = find_max_calories_for_x(&input, 3);
-    println!("Max calories on three elfs: {:?}", max_calories_three);
+    let max_calories = find_max_calories_for_x(&elves, 3);
+    println!("Calories - Part 2: {:?}", max_calories.0);
 }

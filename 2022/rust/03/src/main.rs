@@ -8,12 +8,11 @@ struct Backpack {
     compartment2: String,
 }
 
-#[derive(Debug)]
-struct Input {
-    backpacks: Vec<Backpack>,
+fn read_input() -> String {
+    fs::read_to_string("input.txt").expect("Should have been able to read the file")
 }
 
-fn read_input() -> Input {
+fn parse_input(input: Lines<'_>) -> Vec<Backpack> {
     fn parse_line(line: String) -> Option<Backpack> {
         let trimmed = line.trim();
         if !trimmed.is_empty() {
@@ -27,12 +26,9 @@ fn read_input() -> Input {
         }
     }
 
-    let input = fs::read_to_string("input.txt").expect("Should have been able to read the file");
-    let backpacks = input
-        .lines()
+    input
         .filter_map(|line| parse_line(line.to_string()))
-        .collect();
-    Input { backpacks }
+        .collect()
 }
 
 #[derive(Debug)]
@@ -42,37 +38,26 @@ struct Group {
     elf3: String,
 }
 
-#[derive(Debug)]
-struct Input2 {
-    groups: Vec<Group>,
-}
-
-fn read_input2() -> Input2 {
-    fn group_up(lines: Lines<'_>) -> Vec<Group> {
-        let mut chunk = Vec::new();
-        let mut groups = Vec::new();
-        for line in lines {
-            if !line.is_empty() {
-                chunk.push(line);
-                if chunk.len() == 3 {
-                    groups.push(Group {
-                        elf1: chunk[0].to_string(),
-                        elf2: chunk[1].to_string(),
-                        elf3: chunk[2].to_string(),
-                    });
-                    chunk.clear();
-                }
+fn parse_input2(input: Lines<'_>) -> Vec<Group> {
+    let mut chunk = Vec::new();
+    let mut groups = Vec::new();
+    for line in input {
+        if !line.is_empty() {
+            chunk.push(line);
+            if chunk.len() == 3 {
+                groups.push(Group {
+                    elf1: chunk[0].to_string(),
+                    elf2: chunk[1].to_string(),
+                    elf3: chunk[2].to_string(),
+                });
+                chunk.clear();
             }
         }
-        if !chunk.is_empty() {
-            panic!("Linenumber was not a multiple of 3");
-        }
-        groups
     }
-
-    let input = fs::read_to_string("input.txt").expect("Should have been able to read the file");
-    let groups = group_up(input.lines());
-    Input2 { groups }
+    if !chunk.is_empty() {
+        panic!("Linenumber was not a multiple of 3");
+    }
+    groups
 }
 
 fn get_shared_items(backpack: &Backpack) -> char {
@@ -118,10 +103,17 @@ fn get_score_for_group(group: &Group) -> u32 {
 
 fn main() {
     let input = read_input();
-    let score: u32 = input.backpacks.iter().map(get_score_for_backback).sum();
-    println!("Score: {}", score);
 
-    let input2 = read_input2();
-    let score2: u32 = input2.groups.iter().map(get_score_for_group).sum();
-    println!("Score - Part 2: {}", score2);
+    // Part 1
+    let backpacks = parse_input(input.lines());
+    let score: u32 = backpacks
+        .into_iter()
+        .map(|backpack| get_score_for_backback(&backpack))
+        .sum();
+    println!("Score - Part 1: {}", score);
+
+    // Part 2
+    let groups = parse_input2(input.lines());
+    let score: u32 = groups.iter().map(get_score_for_group).sum();
+    println!("Score - Part 2: {}", score);
 }

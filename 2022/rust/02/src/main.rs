@@ -1,3 +1,4 @@
+use core::str::Lines;
 use std::fs;
 
 #[derive(Debug)]
@@ -13,13 +14,12 @@ struct Round {
     me: Hand,
 }
 
-#[derive(Debug)]
-struct Input {
-    rounds: Vec<Round>,
+fn read_input() -> String {
+    fs::read_to_string("input.txt").expect("Should have been able to read the file")
 }
 
-fn read_input() -> Input {
-    fn parse_line(line: String) -> Round {
+fn parse_input(input: Lines<'_>) -> Vec<Round> {
+    fn parse_line(line: &str) -> Round {
         let mut split = line.split_whitespace();
         let enemy = match split.next().unwrap() {
             "A" => Hand::Rock,
@@ -36,10 +36,7 @@ fn read_input() -> Input {
         Round { enemy, me }
     }
 
-    let input = fs::read_to_string("input.txt").expect("Should have been able to read the file");
-    let lines = input.lines();
-    let rounds = lines.map(|line| parse_line(line.to_string())).collect();
-    Input { rounds }
+    input.map(parse_line).collect()
 }
 
 #[derive(Debug)]
@@ -55,13 +52,8 @@ struct Round2 {
     result: Result,
 }
 
-#[derive(Debug)]
-struct Input2 {
-    rounds: Vec<Round2>,
-}
-
-fn read_input_2() -> Input2 {
-    fn parse_line(line: String) -> Round2 {
+fn parse_input2(input: Lines<'_>) -> Vec<Round2> {
+    fn parse_line(line: &str) -> Round2 {
         let mut split = line.split_whitespace();
         let enemy = match split.next().unwrap() {
             "A" => Hand::Rock,
@@ -78,13 +70,10 @@ fn read_input_2() -> Input2 {
         Round2 { enemy, result }
     }
 
-    let input = fs::read_to_string("input.txt").expect("Should have been able to read the file");
-    let lines = input.lines();
-    let rounds = lines.map(|line| parse_line(line.to_string())).collect();
-    Input2 { rounds }
+    input.map(parse_line).collect()
 }
 
-fn transform_input_2(input: Input2) -> Input {
+fn transform_round2_to_round(input: Vec<Round2>) -> Vec<Round> {
     fn result_to_hand(enemy_hand: &Hand, result: &Result) -> Hand {
         match (enemy_hand, result) {
             (Hand::Rock, Result::Win) => Hand::Paper,
@@ -99,15 +88,13 @@ fn transform_input_2(input: Input2) -> Input {
         }
     }
 
-    let rounds = input
-        .rounds
+    input
         .into_iter()
         .map(|round| Round {
             me: result_to_hand(&round.enemy, &round.result),
             enemy: round.enemy,
         })
-        .collect();
-    Input { rounds }
+        .collect()
 }
 
 fn calculate_outcome_score(round: &Round) -> u32 {
@@ -147,11 +134,18 @@ fn calculate_score(round: &Round) -> u32 {
 
 fn main() {
     let input = read_input();
-    let score: u32 = input.rounds.iter().map(calculate_score).sum();
-    println!("Score: {}", score);
 
-    let input2 = read_input_2();
-    let input = transform_input_2(input2);
-    let score2: u32 = input.rounds.iter().map(calculate_score).sum();
-    println!("Real score: {}", score2);
+    // Part 1
+    let rounds = parse_input(input.lines());
+    let score: u32 = rounds
+        .into_iter()
+        .map(|round| calculate_score(&round))
+        .sum();
+    println!("Score - Part 1: {}", score);
+
+    // Part 2
+    let rounds = parse_input2(input.lines());
+    let rounds = transform_round2_to_round(rounds);
+    let score2: u32 = rounds.iter().map(calculate_score).sum();
+    println!("Score - Part 2: {}", score2);
 }
