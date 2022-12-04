@@ -1,5 +1,4 @@
-use core::str::Lines;
-use std::fs;
+use std::{fs, str::Lines};
 
 #[derive(Debug)]
 enum Hand {
