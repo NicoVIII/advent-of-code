@@ -8,3 +8,7 @@ The folders are structured as follows:
 * day of the puzzle
 
 This means e.g. `2022/rust/03` is the solution to the third day of the Advent of Code 2022, written in Rust.
+
+## Finished years
+
+- ... None yet :(
