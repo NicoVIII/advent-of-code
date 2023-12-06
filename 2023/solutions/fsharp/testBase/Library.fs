@@ -18,7 +18,7 @@ module Tests =
         |> Seq.filter (fun filePath ->
             let fileName = Path.GetFileName filePath
             fileName.StartsWith "input-" && fileName.EndsWith ".txt")
-        |> Seq.map (fun filePath ->
+        |> Seq.choose (fun filePath ->
             // Fetch input identifier
             let fileName = Path.GetFileName filePath
             let pattern = @"input-(.*).txt"
@@ -29,17 +29,32 @@ module Tests =
             // Fetch expected output
             let outputFilePath = sprintf "../../outputs/%02i/output-%s.txt" config.day id
 
-            let part1Output, part2Output =
-                match File.ReadAllLines outputFilePath |> Array.filter ((<>) "") with
-                | [| part1; part2 |] -> part1, part2
-                | _ -> failwith $"Expected output file {outputFilePath} to contain exactly two lines"
+            if File.Exists outputFilePath then
+                let part1Output, part2Output =
+                    match File.ReadAllLines outputFilePath |> Array.filter ((<>) "") with
+                    | [| part1; part2 |] -> part1, part2
+                    | _ ->
+                        failwith
+                            $"Expected output file {outputFilePath} to contain exactly two lines"
 
-            test $"Input: {fileName}" {
-                let input = config.readInput filePath
-                if part1Output <> "-" then
-                    Expect.equal (config.part1 input |> string) part1Output "Part 1 result wrong"
-                if part2Output <> "-" then
-                    Expect.equal (config.part2 input |> string) part2Output "Part 2 result wrong"
-            })
+                test $"Input: {fileName}" {
+                    let input = config.readInput filePath
+
+                    if part1Output <> "-" then
+                        Expect.equal
+                            (config.part1 input |> string)
+                            part1Output
+                            "Part 1 result wrong"
+
+                    if part2Output <> "-" then
+                        Expect.equal
+                            (config.part2 input |> string)
+                            part2Output
+                            "Part 2 result wrong"
+                }
+                |> Some
+            else
+                printfn "Warning: No matching output file for %s" fileName
+                None)
         |> Seq.toList
         |> testList $"Day {config.day}"
