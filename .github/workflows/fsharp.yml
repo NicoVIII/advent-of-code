@@ -26,7 +26,9 @@ jobs:
         find . -type d -name "fsharp" -exec find {} -name "test-all.sh" \; | while read testScript
         do
           echo "Running tests in $(dirname "$testScript")"
-          cd "$(dirname "$testScript")"
-          dotnet tool restore
-          ./$(basename "$testScript")
+          (
+            cd "$(dirname "$testScript")" || exit
+            dotnet tool restore
+            ./$(basename "$testScript")
+          )
         done
