@@ -107,7 +107,7 @@ let transformRound2ToRound round =
 
     { enemy = round.enemy; me = myHand }
 
-let part1 = parseInput >> Seq.map getScore >> Seq.sum >> (+) 1u
+let part1 = parseInput >> Seq.map getScore >> Seq.sum
 
 let part2 = parseInput2 >> Seq.map (transformRound2ToRound >> getScore) >> Seq.sum
 
