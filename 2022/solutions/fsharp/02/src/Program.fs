@@ -1,6 +1,11 @@
-﻿open System.IO
+﻿module Day02
 
-let readInput () = File.ReadAllLines "input.txt"
+open System.IO
+
+type Input = string array
+
+module Input =
+    let read filePath = File.ReadAllLines filePath
 
 type Hand =
     | Rock
@@ -28,8 +33,10 @@ let parseInput lines =
     |> Seq.map (fun (line: string) ->
         let parts = line.Split ' '
 
-        { enemy = parseEnemyHand parts.[0]
-          me = parseMyHand parts.[1] })
+        {
+            enemy = parseEnemyHand parts.[0]
+            me = parseMyHand parts.[1]
+        })
 
 let getResultScore round =
     match round.me, round.enemy with
@@ -80,8 +87,10 @@ let parseInput2 lines =
     |> Seq.map (fun (line: string) ->
         let parts = line.Split ' '
 
-        { enemy = parseEnemyHand parts.[0]
-          result = parseResult parts.[1] })
+        {
+            enemy = parseEnemyHand parts.[0]
+            result = parseResult parts.[1]
+        })
 
 let transformRound2ToRound round =
     let myHand =
@@ -98,13 +107,21 @@ let transformRound2ToRound round =
 
     { enemy = round.enemy; me = myHand }
 
-let input = readInput ()
+let part1 = parseInput >> Seq.map getScore >> Seq.sum >> (+) 1u
 
-// Part 1
-parseInput input |> Seq.map getScore |> Seq.sum |> printfn "Score - Part 1: %i"
+let part2 = parseInput2 >> Seq.map (transformRound2ToRound >> getScore) >> Seq.sum
 
-// Part 2
-parseInput2 input
-|> Seq.map (transformRound2ToRound >> getScore)
-|> Seq.sum
-|> printfn "Score - Part 2: %i"
+[<EntryPoint>]
+let main args =
+    if args.Length <> 1 then
+        failwith "Please provide the input file path as only argument"
+
+    let input = Input.read args[0]
+
+    // Part 1
+    part1 input |> printfn "Score - Part 1: %i"
+
+    // Part 2
+    part2 input |> printfn "Score - Part 2: %i"
+
+    0
