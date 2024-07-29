@@ -4,17 +4,29 @@
 module Expose =
     open System.IO
 
-    let readInput = File.ReadAllText >> parseInput
+    let readInput = File.ReadAllText
 
-    let part1 (seeds, maps) =
+    let part1 input =
+        let seeds, maps = parseInputV1 input
+
         seeds
-        |> List.map (lookupLocationBySeed maps)
-        |> List.minBy (fun (Location location) -> location)
+        |> lookupLocationBySeed maps
+        |> List.map (fun (LocationRange location) -> location.start)
+        |> List.min
+
+    let part2 input =
+        let seeds, maps = parseInputV2 input
+
+        seeds
+        |> lookupLocationBySeed maps
+        |> List.map (fun (LocationRange location) -> location.start)
+        |> List.min
 
 module Program =
     [<EntryPoint>]
     let main args =
         let input = readInput args[0]
 
-        part1 input |> Location.getValue |> printfn "Part 1: %i"
+        part1 input |> printfn "Part 1: %i"
+        part2 input |> printfn "Part 2: %i"
         0

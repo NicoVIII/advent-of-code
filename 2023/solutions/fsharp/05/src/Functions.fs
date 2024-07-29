@@ -12,14 +12,25 @@ module String =
 [<AutoOpen>]
 module Functions =
     module Parser =
-        let parseSeeds input =
+        let parseSeedsV1 input =
             let parts = String.split ":" input
 
             parts[1]
             |> String.trim
             |> String.split " "
-            |> Array.map (uint >> Seed)
-            |> List.ofArray
+            |> Array.map (fun input -> BaseRange.createFromStartLength (uint input) 1u |> SeedRange)
+
+        let parseSeedsV2 input =
+            let parts = String.split ":" input
+
+            parts[1]
+            |> String.trim
+            |> String.split " "
+            |> Array.chunkBySize 2
+            |> Array.map (function
+                | [| start; length |] ->
+                    BaseRange.createFromStartLength (uint start) (uint length) |> SeedRange
+                | _ -> failwith "Invalid input")
 
         let parseRangeInfoList input =
             let parseLine input =
@@ -30,74 +41,101 @@ module Functions =
             |> String.split "\n"
             |> List.ofArray
             |> List.tail
-            |> List.map (
-                parseLine
-                >> fun values -> {
-                    destinationStart = values[0]
-                    sourceStart = values[1]
-                    rangeLength = values[2]
+            |> List.map (parseLine >> fun values -> RangeMap.create values[0] values[1] values[2])
+
+        let parseInput parseSeeds input =
+            let blocks = String.split "\n\n" input
+
+            parseSeeds blocks[0],
+            {
+                seedToSoil = parseRangeInfoList blocks[1]
+                soilToFertilizer = parseRangeInfoList blocks[2]
+                fertilizerToWater = parseRangeInfoList blocks[3]
+                waterToLight = parseRangeInfoList blocks[4]
+                lightToTemperature = parseRangeInfoList blocks[5]
+                temperatureToHumidity = parseRangeInfoList blocks[6]
+                humidityToLocation = parseRangeInfoList blocks[7]
+            }
+
+    let parseInputV1 = Parser.parseInput (Parser.parseSeedsV1 >> List.ofArray)
+    let parseInputV2 = Parser.parseInput (Parser.parseSeedsV2 >> List.ofArray)
+
+    let startToDestination map range = {
+        start = (int64 range.start + map.offset) |> uint
+        ``end`` = (int64 range.``end`` + map.offset) |> uint
+    }
+
+    let genericLookup rangeMapList rangeList =
+        let mutable sourceRangeList = rangeList
+        let mutable destinationRangeList = []
+
+        for rangeMap in rangeMapList do
+            for sourceRange in sourceRangeList do
+                let destinationRange = {
+                    start = max sourceRange.start rangeMap.sourceStart
+                    ``end`` = min sourceRange.``end`` rangeMap.sourceEnd
                 }
-            )
-            |> SortedRangeInfoList.create
 
-    let parseInput (input: string) =
-        let blocks = String.split "\n\n" input
+                if destinationRange.start <= destinationRange.``end`` then
+                    destinationRangeList <-
+                        startToDestination rangeMap destinationRange :: destinationRangeList
 
-        Parser.parseSeeds blocks[0],
-        {
-            seedToSoil = Parser.parseRangeInfoList blocks[1]
-            soilToFertilizer = Parser.parseRangeInfoList blocks[2]
-            fertilizerToWater = Parser.parseRangeInfoList blocks[3]
-            waterToLight = Parser.parseRangeInfoList blocks[4]
-            lightToTemperature = Parser.parseRangeInfoList blocks[5]
-            temperatureToHumidity = Parser.parseRangeInfoList blocks[6]
-            humidityToLocation = Parser.parseRangeInfoList blocks[7]
-        }
+                    sourceRangeList <- List.except [ sourceRange ] sourceRangeList
 
-    let genericLookup sortedRangeInfoList value =
-        // Search binarily for a potentially fitting range info
-        let rec search start ``end`` =
-            if start > ``end`` then
-                // There is no fitting info => value stays the same
-                value
-            else
-                let middle = (start + ``end``) / 2
-                let rangeInfo = SortedRangeInfoList.getAt middle sortedRangeInfoList
+                    // Do we have a source range at the start left?
+                    if sourceRange.start < destinationRange.start then
+                        sourceRangeList <-
+                            {
+                                sourceRange with
+                                    ``end`` = destinationRange.start - 1u
+                            }
+                            :: sourceRangeList
+                    // Do we have a source range at the end left?
+                    if sourceRange.``end`` > destinationRange.``end`` then
+                        sourceRangeList <-
+                            {
+                                sourceRange with
+                                    start = destinationRange.``end`` + 1u
+                            }
+                            :: sourceRangeList
 
-                if
-                    value >= rangeInfo.sourceStart
-                    && value < rangeInfo.sourceStart + rangeInfo.rangeLength
-                then
-                    // We found a fitting info
-                    rangeInfo.destinationStart + value - rangeInfo.sourceStart
-                elif rangeInfo.sourceStart > value then
-                    search start (middle - 1)
-                else
-                    search (middle + 1) ``end``
-
-        let length = SortedRangeInfoList.length sortedRangeInfoList
-        search 0 (length - 1)
+        // The remaining source Ranges are not handled by any map, therefore we simply use them as-is
+        destinationRangeList @ sourceRangeList
 
     let lookupSoil maps =
-        Seed.getValue >> genericLookup maps.seedToSoil >> Soil
+        List.map SeedRange.getValue
+        >> genericLookup maps.seedToSoil
+        >> List.map SoilRange
 
     let lookupFertilizer maps =
-        Soil.getValue >> genericLookup maps.soilToFertilizer >> Fertilizer
+        List.map SoilRange.getValue
+        >> genericLookup maps.soilToFertilizer
+        >> List.map FertilizerRange
 
     let lookupWater maps =
-        Fertilizer.getValue >> genericLookup maps.fertilizerToWater >> Water
+        List.map FertilizerRange.getValue
+        >> genericLookup maps.fertilizerToWater
+        >> List.map WaterRange
 
     let lookupLight maps =
-        Water.getValue >> genericLookup maps.waterToLight >> Light
+        List.map WaterRange.getValue
+        >> genericLookup maps.waterToLight
+        >> List.map LightRange
 
     let lookupTemperature maps =
-        Light.getValue >> genericLookup maps.lightToTemperature >> Temperature
+        List.map LightRange.getValue
+        >> genericLookup maps.lightToTemperature
+        >> List.map TemperatureRange
 
     let lookupHumidity maps =
-        Temperature.getValue >> genericLookup maps.temperatureToHumidity >> Humidity
+        List.map TemperatureRange.getValue
+        >> genericLookup maps.temperatureToHumidity
+        >> List.map HumidityRange
 
     let lookupLocation maps =
-        Humidity.getValue >> genericLookup maps.humidityToLocation >> Location
+        List.map HumidityRange.getValue
+        >> genericLookup maps.humidityToLocation
+        >> List.map LocationRange
 
     let lookupLocationBySeed maps =
         lookupSoil maps

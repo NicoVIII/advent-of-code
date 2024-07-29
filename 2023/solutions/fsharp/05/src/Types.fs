@@ -1,68 +1,75 @@
 namespace Day05
 
 type Base = uint
-type Seed = Seed of Base
-type Soil = Soil of Base
-type Fertilizer = Fertilizer of Base
-type Water = Water of Base
-type Light = Light of Base
-type Temperature = Temperature of Base
-type Humidity = Humidity of Base
-type Location = Location of Base
+type BaseRange = { start: Base; ``end``: Base }
+type SeedRange = SeedRange of BaseRange
+type SoilRange = SoilRange of BaseRange
+type FertilizerRange = FertilizerRange of BaseRange
+type WaterRange = WaterRange of BaseRange
+type LightRange = LightRange of BaseRange
+type TemperatureRange = TemperatureRange of BaseRange
+type HumidityRange = HumidityRange of BaseRange
+type LocationRange = LocationRange of BaseRange
 
-type RangeInfo = {
+type RangeMap = private {
     sourceStart: Base
-    destinationStart: Base
-    rangeLength: uint
+    sourceEnd: Base
+    offset: int64
 }
 
-type SortedRangeInfoList = private SortedRangeInfoList of RangeInfo list
-
-type Maps = {
-    seedToSoil: SortedRangeInfoList
-    soilToFertilizer: SortedRangeInfoList
-    fertilizerToWater: SortedRangeInfoList
-    waterToLight: SortedRangeInfoList
-    lightToTemperature: SortedRangeInfoList
-    temperatureToHumidity: SortedRangeInfoList
-    humidityToLocation: SortedRangeInfoList
+type InputMaps = {
+    seedToSoil: RangeMap list
+    soilToFertilizer: RangeMap list
+    fertilizerToWater: RangeMap list
+    waterToLight: RangeMap list
+    lightToTemperature: RangeMap list
+    temperatureToHumidity: RangeMap list
+    humidityToLocation: RangeMap list
 }
 
 [<RequireQualifiedAccess>]
-module Seed =
-    let getValue (Seed value) = value
-
-
-[<RequireQualifiedAccess>]
-module Soil =
-    let getValue (Soil value) = value
+module BaseRange =
+    let createFromStartLength start length = {
+        start = start
+        ``end`` = start + length - 1u
+    }
 
 [<RequireQualifiedAccess>]
-module Fertilizer =
-    let getValue (Fertilizer value) = value
+module SeedRange =
+    let getValue (SeedRange value) = value
 
 [<RequireQualifiedAccess>]
-module Water =
-    let getValue (Water value) = value
+module SoilRange =
+    let getValue (SoilRange value) = value
 
 [<RequireQualifiedAccess>]
-module Light =
-    let getValue (Light value) = value
+module FertilizerRange =
+    let getValue (FertilizerRange value) = value
 
 [<RequireQualifiedAccess>]
-module Temperature =
-    let getValue (Temperature value) = value
+module WaterRange =
+    let getValue (WaterRange value) = value
 
 [<RequireQualifiedAccess>]
-module Humidity =
-    let getValue (Humidity value) = value
+module LightRange =
+    let getValue (LightRange value) = value
 
 [<RequireQualifiedAccess>]
-module Location =
-    let getValue (Location value) = value
+module TemperatureRange =
+    let getValue (TemperatureRange value) = value
 
 [<RequireQualifiedAccess>]
-module SortedRangeInfoList =
-    let create = List.sortBy _.sourceStart >> SortedRangeInfoList
-    let getAt index (SortedRangeInfoList list) = list[index]
-    let length (SortedRangeInfoList list) = List.length list
+module HumidityRange =
+    let getValue (HumidityRange value) = value
+
+[<RequireQualifiedAccess>]
+module LocationRange =
+    let getValue (LocationRange value) = value
+
+[<RequireQualifiedAccess>]
+module RangeMap =
+    let create (destinationStart: Base) sourceStart length = {
+        sourceStart = sourceStart
+        sourceEnd = sourceStart + length - 1u
+        offset = int64 destinationStart - int64 sourceStart
+    }
