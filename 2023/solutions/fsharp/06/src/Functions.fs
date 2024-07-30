@@ -11,23 +11,38 @@ module String =
 
 [<AutoOpen>]
 module Functions =
-    let parseLine line =
+    let parseLineV1 line : Base array =
         // Remove title
         (String.split ":" line)[1]
         |> String.trim
         |> String.split " "
-        |> Array.choose (fun x -> if x <> "" then uint16 x |> Some else None)
+        |> Array.choose (fun x -> if x <> "" then Base.convertTo x |> Some else None)
 
-    let parseInput input =
+    let parseInputV1 input =
         let lines = String.split "\n" input
-        let times = parseLine lines[0]
-        let distances = parseLine lines[1]
+        let times = parseLineV1 lines[0]
+        let distances = parseLineV1 lines[1]
 
         Array.zip times distances
         |> Array.map (fun (time, distance) -> { time = time; distance = distance })
         |> List.ofArray
 
-    let beatRecordCount record =
+    let parseLineV2 line : Base =
+        // Remove title
+        (String.split ":" line)[1]
+        |> String.trim
+        |> String.filter (fun c -> c <> ' ')
+        |> Base.convertTo
+
+    let parseInputV2 input =
+        let lines = String.split "\n" input
+
+        {
+            time = parseLineV2 lines[0]
+            distance = parseLineV2 lines[1]
+        }
+
+    let beatRecordCount record : Base =
         // We can express the problem like this
         // distance < (x-y)(x+y) with y < x and x = time / 2
         // count how many ys element of integers are there which solve that
@@ -45,7 +60,7 @@ module Functions =
         // y - 0.5 < sqrt (x² - distance)
         // y < sqrt (x² - distance) + 0.5
         // biggest y = round-down (sqrt (x² - distance) + 0.5 - 0.0001)
-        let timeIsOdd = record.time % 2us <> 0us
+        let timeIsOdd = record.time % 2UL <> 0UL
 
         let biggestY =
             pown (float record.time / 2.) 2 - float record.distance
@@ -53,6 +68,6 @@ module Functions =
             |> if timeIsOdd then (+) 0.5 else id
             |> (+) -0.0001
             |> floor
-            |> uint16
+            |> Base.convertTo
 
-        if timeIsOdd then biggestY * 2us else biggestY * 2us + 1us
+        if timeIsOdd then biggestY * 2UL else biggestY * 2UL + 1UL

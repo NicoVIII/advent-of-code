@@ -7,11 +7,11 @@ open Tests
 
 type RecordGen() =
     static member Record() : Arbitrary<Record> =
-        Arb.from<uint16 * uint16>
+        Arb.from<Base * Base>
         |> Arb.convert (fun (time, distance) -> { time = time; distance = distance }) (fun record ->
             record.time, record.distance)
         |> Arb.filter (fun record ->
-            record.time > 0us && pown (float record.time / 2.) 2 > float record.distance)
+            record.time > 0UL && pown (float record.time / 2.) 2 > float record.distance)
 
 [<AutoOpen>]
 module Auto =
@@ -22,46 +22,46 @@ module Auto =
 
 let testProperty = testPropertyWithConfig config
 
-let alternativeImplementation record =
-    [ 0us .. record.time ]
+let alternativeImplementation record : Base =
+    [ 0UL .. record.time ]
     |> List.filter (fun loadingTime -> (record.time - loadingTime) * loadingTime > record.distance)
     |> List.length
-    |> uint16
+    |> Base.convertTo
 
 [<Tests>]
 let unitTests =
     testList (nameof Functions) [
-        testList (nameof parseInput) [
+        testList (nameof parseInputV1) [
             let paramList = [
                 [ "Time:      7  15   30"; "Distance:  9  40  200" ],
                 [
-                    { time = 7us; distance = 9us }
-                    { time = 15us; distance = 40us }
-                    { time = 30us; distance = 200us }
+                    { time = 7UL; distance = 9UL }
+                    { time = 15UL; distance = 40UL }
+                    { time = 30UL; distance = 200UL }
                 ]
                 [
                     "Time:        40     70     98     79"
                     "Distance:   215   1051   2147   1005"
                 ],
                 [
-                    { time = 40us; distance = 215us }
-                    { time = 70us; distance = 1051us }
-                    { time = 98us; distance = 2147us }
-                    { time = 79us; distance = 1005us }
+                    { time = 40UL; distance = 215UL }
+                    { time = 70UL; distance = 1051UL }
+                    { time = 98UL; distance = 2147UL }
+                    { time = 79UL; distance = 1005UL }
                 ]
             ]
 
             for (input, expected) in paramList do
                 test $"{expected}" {
-                    Expect.equal (String.concat "\n" input |> parseInput) expected ""
+                    Expect.equal (String.concat "\n" input |> parseInputV1) expected ""
                 }
         ]
         testList (nameof beatRecordCount) [
             let paramList = [
-                { time = 7us; distance = 9us }, 4us
-                { time = 30us; distance = 200us }, 9us
-                { time = 40us; distance = 215us }, 27us
-                { time = 79us; distance = 1005us }, 48us
+                { time = 7UL; distance = 9UL }, 4UL
+                { time = 30UL; distance = 200UL }, 9UL
+                { time = 40UL; distance = 215UL }, 27UL
+                { time = 79UL; distance = 1005UL }, 48UL
             ]
 
             for (record, expected) in paramList do
@@ -84,7 +84,7 @@ let integrationTests =
     {
         day = 6
         part1 = part1 >> string
-        part2 = fun _ -> failwith "Not implemented"
+        part2 = part2 >> string
         readInput = readInput
     }
     |> Tests.build
