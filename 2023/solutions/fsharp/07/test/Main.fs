@@ -9,7 +9,7 @@ let integrationTests =
     {
         day = 7
         part1 = part1 >> string
-        part2 = fun _ -> failwith "Not implemented"
+        part2 = part2 >> string
         readInput = readInput
     }
     |> Tests.build

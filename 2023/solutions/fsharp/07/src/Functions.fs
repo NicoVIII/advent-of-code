@@ -11,15 +11,24 @@ module String =
 
 [<AutoOpen>]
 module Functions =
-    let parseHand (handString: string) =
-        CardValue.fromValue handString[0],
-        CardValue.fromValue handString[1],
-        CardValue.fromValue handString[2],
-        CardValue.fromValue handString[3],
-        CardValue.fromValue handString[4]
+    let parseHand fromValue (handString: string) : Hand<_> =
+        fromValue handString[0],
+        fromValue handString[1],
+        fromValue handString[2],
+        fromValue handString[3],
+        fromValue handString[4]
 
-    let parseLine line : Hand * _ =
+    let parseHandV1: _ -> HandV1 = parseHand CardValueV1.fromValue
+    let parseHandV2: _ -> HandV2 = parseHand CardValueV2.fromValue
+
+    let parseLine parseHand line =
         let parts = String.split " " line
         parseHand parts[0], uint parts[1]
 
-    let parseInput = String.split "\n" >> Array.map parseLine >> List.ofArray
+    let parseLineV1 = parseLine parseHandV1
+    let parseLineV2 = parseLine parseHandV2
+
+    let preParseInput = String.split "\n"
+    let parseInput parseLine = Array.map parseLine >> List.ofArray
+    let parseInputV1 = parseInput parseLineV1
+    let parseInputV2 = parseInput parseLineV2
