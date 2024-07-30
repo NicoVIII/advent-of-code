@@ -1,4 +1,4 @@
 source https://www.nuget.org/api/v2
 
 nuget FSharp.Core ~> 8.0
-nuget Expecto ~> 10.0
+nuget Expecto.FsCheck ~> 10.0
