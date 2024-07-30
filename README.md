@@ -13,3 +13,7 @@ This means e.g. `2022/solutions/rust/03` is the solution to the third day of the
 ## Finished years
 
 - ... None yet :(
+
+## Repository structure
+
+![Diagram](images/diagram.svg)
