@@ -1,0 +1,26 @@
+name: Tests - 2022 - F#
+
+on: 
+  push:
+    paths:
+      - ".github/workflows/2022-fsharp.yml"
+      - "2022/inputs/**"
+      - "2022/outputs/**"
+      - "2022/solutions/fsharp/**"
+  pull_request:
+
+jobs:
+  test-fsharp:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        dotnet: [8.0.404]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ matrix.dotnet }}
+    - name: Run tests
+      run: cd ./2022/solutions/fsharp/ && dotnet tool restore && ./test-all.sh
