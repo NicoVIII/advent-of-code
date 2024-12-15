@@ -11,16 +11,12 @@ on:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        dotnet: [8.0.404]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ matrix.dotnet }}
+        dotnet-version: 8.0.404
     - name: Run tests
       run: cd ./2023/solutions/fsharp/ && dotnet tool restore && ./test-all.sh
