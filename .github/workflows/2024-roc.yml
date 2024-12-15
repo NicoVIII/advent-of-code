@@ -1,0 +1,25 @@
+name: Tests - 2024 - Roc
+
+on: 
+  push:
+    paths:
+      - ".github/workflows/2024-roc.yml"
+      - "2024/inputs/**"
+      - "2024/outputs/**"
+      - "2024/solutions/fsharp/**"
+  pull_request:
+
+jobs:
+  test-fsharp:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: hasnep/setup-roc@v0.3.0
+      with:
+        roc-version: nightly
+    - name: Run tests
+      run: cd ./2024/solutions/roc/ && ./test-all.sh
