@@ -8,7 +8,7 @@ Level : U8
 Report : List Level
 Data : List Report
 
-# Because there is no List.windowed, we build out own
+# Because there is no List.windowed, we build our own
 listWindowed2 : List a -> List (a, a)
 listWindowed2 = \list ->
     List.dropLast list 1
@@ -40,23 +40,41 @@ parse = \input ->
 expect parse "1 2 3" == [[1, 2, 3]]
 expect parse "1 2 3\n4 5 6\n" == [[1, 2, 3], [4, 5, 6]]
 
+isReportSafe : Report -> Bool
+isReportSafe = \report ->
+    allIncreasing = report == List.sortAsc report
+    allDecreasing = report == List.sortDesc report
+    changesGradually =
+        listWindowed2 report
+        |> List.all
+            (\(a, b) ->
+                diff = Num.absDiff a b
+                diff >= 1 && diff <= 3)
+    (allIncreasing || allDecreasing) && changesGradually
+
 part1 : Data -> _
-part1 = \data ->
+part1 = \data -> List.countIf data isReportSafe
+
+# TODO - look if I can use IO in expect with PI
+
+part2 : Data -> _
+part2 = \data ->
+    createProblemDampenerList : Report -> List Report
+    createProblemDampenerList = \report ->
+        List.walkWithIndex
+            report
+            []
+            (\reducedList, _, index ->
+                List.append reducedList (List.dropAt report index)
+            )
+
     List.countIf
         data
         (\report ->
-            allIncreasing = report == List.sortAsc report
-            allDecreasing = report == List.sortDesc report
-            changesGradually =
-                listWindowed2 report
-                |> List.all
-                    (\(a, b) ->
-                        diff = Num.absDiff a b
-                        diff >= 1 && diff <= 3)
-            (allIncreasing || allDecreasing) && changesGradually
+            List.any
+                (createProblemDampenerList report)
+                isReportSafe
         )
-
-# TODO - look if I can use IO in expect with PI
 
 main =
     args = Arg.list! {}
@@ -65,7 +83,7 @@ main =
             input = File.readUtf8! file
             data = parse input
             Stdout.line! "Part1: $(part1 data |> Num.toStr)"
+            Stdout.line! "Part2: $(part2 data |> Num.toStr)"
 
-        # Stdout.line! "Part2: $(part2 data |> Num.toStr)"
         Err _ ->
             crash "Failed to read file"
