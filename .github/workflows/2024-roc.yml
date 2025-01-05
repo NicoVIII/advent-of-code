@@ -18,4 +18,4 @@ jobs:
       with:
         roc-version: nightly
     - name: Run tests
-      run: cd ./2024/solutions/roc/ && ./test-all.sh
+      run: cd ./2024/solutions/roc/ && ./test_all.py
