@@ -1,8 +1,13 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.17.0/lZFLstMUCUvd5bjnnpYromZJXkQUrdhbva4xdBInicE.tar.br" }
+app [main!] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    testbase: "../test_base/main.roc",
+}
 
 import pf.Arg
+import pf.Dir
 import pf.File
 import pf.Stdout
+import testbase.Testbase
 
 NumType : U32
 Data : (List NumType, List NumType)
@@ -46,8 +51,6 @@ part1 = \(list1, list2) ->
     List.map2 list1Sorted list2Sorted Num.absDiff
     |> List.sum
 
-# TODO - look if I can use IO in expect with PI
-
 part2 : Data -> _
 part2 = \(list1, list2) ->
     List.map
@@ -58,14 +61,19 @@ part2 = \(list1, list2) ->
         )
     |> List.sum
 
-main =
-    args = Arg.list! {}
-    when List.get args 1 is
-        Ok file ->
-            input = File.readUtf8! file
-            data = parse input
-            Stdout.line! "Part1: $(part1 data |> Num.toStr)"
-            Stdout.line! "Part2: $(part2 data |> Num.toStr)"
+expect
+    input_file_list = try Dir.list! "../../../puzzles/inputs/01"
+    _ = List.map input_file_list Testbase.get_output_file_name
+    1 == 1
 
-        Err _ ->
-            crash "Failed to read file"
+run! = \args ->
+    file = try List.get args 1
+    input = try File.read_utf8! file
+    data = parse input
+    try Stdout.line! "Part1: $(part1 data |> Num.toStr)"
+    try Stdout.line! "Part2: $(part2 data |> Num.toStr)"
+    Ok {}
+
+main! = \raw_args ->
+    args = List.map raw_args Arg.display
+    run! args
