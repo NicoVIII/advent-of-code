@@ -6,7 +6,7 @@ import gleam/string
 import simplifile
 
 type Data =
-  List(#(Int, Int))
+  #(List(Int), List(Int))
 
 pub fn parse(input: String) -> Data {
   string.trim(input)
@@ -21,10 +21,11 @@ pub fn parse(input: String) -> Data {
       })
     #(x, y)
   })
+  |> list.unzip
 }
 
 pub fn part1(data: Data) {
-  let #(list1, list2) = list.unzip(data)
+  let #(list1, list2) = data
   let list1_sorted = list.sort(list1, int.compare)
   let list2_sorted = list.sort(list2, int.compare)
   list.zip(list1_sorted, list2_sorted)
@@ -35,8 +36,10 @@ pub fn part1(data: Data) {
   |> list.fold(0, int.add)
 }
 
-pub fn part2(_x) {
-  42
+pub fn part2(data: Data) {
+  let #(list1, list2) = data
+  list.map(list1, fn(el) { list.count(list2, fn(el2) { el == el2 }) * el })
+  |> list.fold(0, int.add)
 }
 
 pub fn main() {

@@ -12,7 +12,9 @@ pub fn testset_test() {
       part1: Some(fn(input) {
         day01.parse(input) |> day01.part1 |> int.to_string
       }),
-      part2: option.None,
+      part2: Some(fn(input) {
+        day01.parse(input) |> day01.part2 |> int.to_string
+      }),
     )
   testbase.testset_test(config)
 }
