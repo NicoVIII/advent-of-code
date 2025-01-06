@@ -4,9 +4,8 @@ on:
   push:
     paths:
       - ".github/workflows/2024-roc.yml"
-      - "2024/inputs/**"
-      - "2024/outputs/**"
-      - "2024/solutions/fsharp/**"
+      - "2024/puzzles/**"
+      - "2024/solutions/roc/**"
   pull_request:
 
 jobs:

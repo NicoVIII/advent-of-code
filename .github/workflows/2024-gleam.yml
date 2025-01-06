@@ -1,0 +1,23 @@
+name: Tests - 2024 - Gleam
+
+on:
+  push:
+    paths:
+      - ".github/workflows/2024-gleam.yml"
+      - "2024/puzzles/**"
+      - "2024/solutions/gleam/**"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1.2"
+          gleam-version: "1.7.0"
+          rebar3-version: "3"
+          # elixir-version: "1"
+      - name: Run tests
+        run: ./2024/solutions/gleam/test-all.sh
