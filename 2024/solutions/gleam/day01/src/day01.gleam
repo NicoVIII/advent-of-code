@@ -48,6 +48,7 @@ pub fn main() {
       let assert Ok(input) = simplifile.read(input_file)
       let data = parse(input)
       io.println("Part 1: " <> { part1(data) |> int.to_string })
+      io.println("Part 2: " <> { part2(data) |> int.to_string })
     }
     _ -> io.println("Usage: gleam run -- <input-file>")
   }
