@@ -30,9 +30,18 @@ def run_test_for_file(folder: str, input_path: str) -> list[str] | None:
     )
     if result.returncode != 0:
         return [f'Error: {result.returncode} {result.stdout} {result.stderr}']
-    output_lines = result.stdout.splitlines()
-    if len(output_lines) > 2 or len(output_lines) < 1:
-        return ['Error: Output does not match expected output']
+
+    # Remove lines not starting with Part
+    output_lines = [
+        line for line in result.stdout.splitlines()
+        if line.startswith('Part')
+    ]
+    if len(output_lines) < 1:
+        return [
+            'Error: Output does not match expected output - ',
+            result.stdout + ' ' + result.stderr
+        ]
+
     output_line1 = output_lines[0].replace('Part1: ', '').strip()
 
     # Compare the output to the expected output
@@ -45,7 +54,7 @@ def run_test_for_file(folder: str, input_path: str) -> list[str] | None:
 
     # Check if the second line is present
     if len(output_lines) == 2 and expected_output2 != '-':
-        output_line2 = output_lines[1].replace('Part2: ', '').strip()
+        output_line2 = output_lines[-1].replace('Part2: ', '').strip()
         if output_line2 != expected_output2:
             errors.append(
                 'Error: Output line 2 does not match expected output: ' +
@@ -60,7 +69,9 @@ def run_tests_for_folder(folder: str) -> bool:
     successful_runs = 0
 
     input_paths: Final = [
-        os.path.join(f'../../puzzles/{folder}', f) for f in os.listdir(f'../../puzzles/{folder}') if f.endswith('-input.txt')
+        os.path.join(f'../../puzzles/{folder}', f)
+        for f in os.listdir(f'../../puzzles/{folder}')
+        if f.endswith('-input.txt')
     ]
     # Get the number of input files
     num_inputs: Final = len(input_paths)

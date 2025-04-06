@@ -16,6 +16,6 @@ jobs:
     - uses: actions/checkout@v4
     - uses: hasnep/setup-roc@v0.5.0
       with:
-        roc-version: nightly
+        roc-version: alpha3-rolling
     - name: Run tests
       run: cd ./2024/solutions/roc/ && ./test_all.py
