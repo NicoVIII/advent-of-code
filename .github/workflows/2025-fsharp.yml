@@ -1,0 +1,21 @@
+name: Tests - 2025 - F#
+
+on: 
+  push:
+    paths:
+      - ".github/workflows/2025-fsharp.yml"
+      - "2025/puzzles/**"
+      - "2025/solutions/fsharp/**"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v6
+    - uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: 10.0.100
+    - name: Run tests
+      run: cd ./2025/solutions/fsharp/ && dotnet tool restore && ./test-all.sh
