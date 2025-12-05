@@ -6,5 +6,12 @@
   <Folder Name="/01/test/">
     <Project Path="01/test/Day01.Test.fsproj" />
   </Folder>
+  <Folder Name="/02/" />
+  <Folder Name="/02/src/">
+    <Project Path="02/src/Day02.fsproj" />
+  </Folder>
+  <Folder Name="/02/test/">
+    <Project Path="02/test/Day02.Test.fsproj" />
+  </Folder>
   <Project Path="testBase/testBase.fsproj" />
 </Solution>

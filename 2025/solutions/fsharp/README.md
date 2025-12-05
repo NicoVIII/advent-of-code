@@ -5,3 +5,5 @@ To run tests, use the project in the test subfolder `dotnet run --project <day>/
 
 To create a new day run `dotnet new console -lang F# -o <day>/src -n Day<day>`.
 To create tests for a day copy and adjust them from another day, the official expecto template seems to be a bit out of date.
+After that add both projects to the solution with `dotnet sln add <day>/src` and `dotnet sln add <day>/test`.
+After that reopen the solution in the ionide plugin in VS Code to get everything working smoothly.
