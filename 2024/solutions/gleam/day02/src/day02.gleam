@@ -50,7 +50,7 @@ pub fn part1(reports: Data) -> Int {
 pub fn part2(reports: Data) -> Int {
   list.count(reports, fn(report) {
     // Generate tolerated reports
-    list.range(0, list.length(report) - 1)
+    int.range(list.length(report), -1, [], list.prepend)
     |> list.map(fn(i) {
       list.append(list.take(report, i), list.drop(report, i + 1))
     })
