@@ -16,9 +16,7 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"editorconfig.editorconfig",
-				"gleam.gleam",
-				"github.copilot"
+				"editorconfig.editorconfig"
 			]
 		}
 	}
