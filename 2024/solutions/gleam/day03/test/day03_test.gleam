@@ -10,9 +10,11 @@ pub fn testset_test() {
     testbase.Config(
       day: "03",
       part1: Some(fn(input) {
-        day03.parse(input) |> day03.part1 |> int.to_string
+        day03.parse1(input) |> day03.calculate |> int.to_string
       }),
-      part2: option.None,
+      part2: Some(fn(input) {
+        day03.parse2(input) |> day03.calculate |> int.to_string
+      }),
     )
   testbase.testset_test(config)
 }
