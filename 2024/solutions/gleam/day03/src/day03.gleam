@@ -4,28 +4,34 @@ import gleam/io
 import gleam/list
 import gleam/string
 import simplifile
-import splitter
+import splitter.{type Splitter}
 
 type Data =
   List(#(Int, Int))
 
-fn parse_pass(to_parse, data: Data) {
-  let pattern_start = splitter.new(["mul("])
+type Patterns {
+  Patterns(mul_start: Splitter, mul_end: Splitter)
+}
+
+fn build_patterns() -> Patterns {
+  Patterns(mul_start: splitter.new(["mul("]), mul_end: splitter.new([")"]))
+}
+
+fn parse_pass(to_parse, data: Data, patterns: Patterns) {
   // Search for the start pattern
-  let start_result = splitter.split_after(pattern_start, to_parse)
+  let start_result = splitter.split_after(patterns.mul_start, to_parse)
   case start_result {
     #(_, "") -> data
     // No more matches, return the data
     #(_, candidate) -> {
-      let pattern_end = splitter.new([")"])
       // We got a potential candidate, we have to search for a matching end pattern
-      let end_result = splitter.split_before(pattern_end, candidate)
+      let end_result = splitter.split_before(patterns.mul_end, candidate)
       case end_result {
         #(_, "") -> data
         // No more matches, return the data
         #(param_str, _) -> {
           // Used to start the next pass
-          let check_next = parse_pass(candidate, _)
+          let check_next = parse_pass(candidate, _, patterns)
 
           // Try to parse params
           let params = string.split_once(param_str, ",")
@@ -54,8 +60,10 @@ fn parse_pass(to_parse, data: Data) {
 }
 
 pub fn parse(input: String) -> Data {
+  let patterns = build_patterns()
+
   string.trim(input)
-  |> parse_pass([])
+  |> parse_pass([], patterns)
 }
 
 pub fn part1(data: Data) {
