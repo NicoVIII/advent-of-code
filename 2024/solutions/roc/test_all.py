@@ -42,15 +42,15 @@ def run_test_for_file(folder: str, input_path: str) -> list[str] | None:
             result.stdout + ' ' + result.stderr
         ]
 
-    output_line1 = output_lines[0].replace('Part1: ', '').strip()
-
     # Compare the output to the expected output
     errors: list[str] = []
-    if output_line1 != expected_output1:
-        errors.append(
-            'Error: Output line 1 does not match expected output: ' +
-            f'{output_line1} != {expected_output1}'
-        )
+    if expected_output1 != '-':
+        output_line1 = output_lines[0].replace('Part1: ', '').strip()
+        if output_line1 != expected_output1:
+            errors.append(
+                'Error: Output line 1 does not match expected output: ' +
+                f'{output_line1} != {expected_output1}'
+            )
 
     # Check if the second line is present
     if len(output_lines) == 2 and expected_output2 != '-':
