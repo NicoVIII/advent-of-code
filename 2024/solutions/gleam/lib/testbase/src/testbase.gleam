@@ -5,20 +5,17 @@ import gleam/string
 import gleeunit/should
 import simplifile
 
-pub type Config {
-  Config(
-    day: String,
-    part1: Option(fn(String) -> String),
-    part2: Option(fn(String) -> String),
-  )
-}
-
 fn get_output_filename(input_filename) {
   string.replace(input_filename, each: "-input", with: "-output")
 }
 
-pub fn testset_test(config: Config) {
-  let basepath = "../../../puzzles/" <> config.day <> "/"
+pub fn run_for_testset(
+  preprocess preprocess: fn(String) -> a,
+  solve_part1 solve_part1: Option(fn(a) -> String),
+  solve_part2 solve_part2: Option(fn(a) -> String),
+  day day: String,
+) {
+  let basepath = "../../../puzzles/" <> day <> "/"
   io.println("Testing with inputs from: " <> basepath)
   let assert Ok(entries) = simplifile.read_directory(basepath)
   list.filter(entries, fn(entry) { string.ends_with(entry, "-input.txt") })
@@ -40,7 +37,7 @@ pub fn testset_test(config: Config) {
       })
 
     // Check if we have anything to test
-    case config.part1, config.part2, part1_expected, part2_expected {
+    case solve_part1, solve_part2, part1_expected, part2_expected {
       None, None, _, _ -> {
         io.println("Error: No parts to test")
         io.println_error("No parts to test")
@@ -54,17 +51,18 @@ pub fn testset_test(config: Config) {
       _, _, _, _ -> Nil
     }
 
-    case config.part1, part1_expected {
+    let preprocessed_data = preprocess(input)
+    case solve_part1, part1_expected {
       Some(part1), Some(expected) -> {
-        let actual = part1(input)
+        let actual = part1(preprocessed_data)
         io.println("Part 1: " <> actual)
         should.equal(actual, expected)
       }
       _, _ -> Nil
     }
-    case config.part2, part2_expected {
+    case solve_part2, part2_expected {
       Some(part2), Some(expected) -> {
-        let actual = part2(input)
+        let actual = part2(preprocessed_data)
         io.println("Part 2: " <> actual)
         should.equal(actual, expected)
       }

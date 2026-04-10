@@ -1,11 +1,9 @@
-import argv
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/string
-import simplifile
+import solutionbase
 
 type DataKey =
   #(Int, Int)
@@ -48,7 +46,7 @@ pub fn parse(input: String) -> Data {
   Data(dict.from_list(dict_list), x_max, y_max)
 }
 
-pub fn part1(data: Data) -> Int {
+pub fn solve_part1(data: Data) -> String {
   let check = fn(x_key: DataKey, next_key: fn(DataKey) -> DataKey) -> Bool {
     let get = fn(key) {
       let assert Ok(value) = dict.get(data.dict, key)
@@ -157,9 +155,10 @@ pub fn part1(data: Data) -> Int {
     |> list.count(fn(check_fn) { check_fn(key) })
     |> fn(count) { sum + count }
   })
+  |> int.to_string
 }
 
-pub fn part2(data: Data) -> Int {
+pub fn solve_part2(data: Data) -> String {
   let get = fn(key) {
     let assert Ok(value) = dict.get(data.dict, key)
     value
@@ -192,16 +191,9 @@ pub fn part2(data: Data) -> Int {
       && bottom_left == "M"
     diag1 && diag2
   })
+  |> int.to_string
 }
 
 pub fn main() {
-  case argv.load().arguments {
-    [input_file] -> {
-      let assert Ok(input) = simplifile.read(input_file)
-      let data = parse(input)
-      io.println("Part 1: " <> { part1(data) |> int.to_string })
-      io.println("Part 2: " <> { part2(data) |> int.to_string })
-    }
-    _ -> io.println("Usage: gleam run -- <input-file>")
-  }
+  solutionbase.run(parse, solve_part1, solve_part2)
 }

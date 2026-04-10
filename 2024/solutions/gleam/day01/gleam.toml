@@ -15,10 +15,9 @@ version = "1.0.0"
 gleam = ">= 1.15.0"
 
 [dependencies]
-argv = ">= 1.0.0 and < 2.0.0"
 gleam_stdlib = ">= 0.70.0 and < 2.0.0"
-simplifile = ">= 2.2.0 and < 3.0.0"
+solutionbase = { path = "../lib/solutionbase" }
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
-testbase = { path = "../testbase" }
+testbase = { path = "../lib/testbase" }

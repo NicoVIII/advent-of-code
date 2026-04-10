@@ -1,9 +1,8 @@
-import argv
+import gleam/function.{identity}
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/string
-import simplifile
+import solutionbase
 import splitter.{type Splitter}
 
 type Data =
@@ -63,7 +62,7 @@ fn parse_pass1(to_parse, data: Data, patterns: Patterns) {
   }
 }
 
-pub fn parse1(input: String) -> Data {
+fn parse_for_part1(input: String) -> Data {
   let patterns = build_patterns1()
 
   string.trim(input)
@@ -135,7 +134,7 @@ fn parse_pass2(to_parse, data: ParsingData, patterns: Patterns) {
   }
 }
 
-pub fn parse2(input: String) -> Data {
+fn parse_for_part2(input: String) -> Data {
   let patterns = build_patterns2()
 
   string.trim(input)
@@ -143,7 +142,7 @@ pub fn parse2(input: String) -> Data {
   |> fn(parsing_data) { parsing_data.mul_pairs }
 }
 
-pub fn calculate(data: Data) {
+fn calculate(data: Data) {
   data
   |> list.map(fn(pair) {
     let #(x, y) = pair
@@ -152,15 +151,18 @@ pub fn calculate(data: Data) {
   |> list.fold(0, int.add)
 }
 
+pub fn solve_part1(input: String) -> String {
+  parse_for_part1(input)
+  |> calculate
+  |> int.to_string
+}
+
+pub fn solve_part2(input: String) -> String {
+  parse_for_part2(input)
+  |> calculate
+  |> int.to_string
+}
+
 pub fn main() {
-  case argv.load().arguments {
-    [input_file] -> {
-      let assert Ok(input) = simplifile.read(input_file)
-      let data1 = parse1(input)
-      io.println("Part 1: " <> { calculate(data1) |> int.to_string })
-      let data2 = parse2(input)
-      io.println("Part 2: " <> { calculate(data2) |> int.to_string })
-    }
-    _ -> io.println("Usage: gleam run -- <input-file>")
-  }
+  solutionbase.run(identity, solve_part1, solve_part2)
 }

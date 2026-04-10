@@ -4,8 +4,8 @@ set -euo pipefail
 for file in $(find . -name "gleam.toml")
 do
     dir=$(dirname $file)
-    # Skip the testbase directory and all directories containing "build" in the path
-    if [[ "$dir" == *"/testbase" ]] || [[ "$dir" == *"/build/"* ]]; then
+    # Skip the lib directory and all directories containing "build" in the path
+    if [[ "$dir" == *"/lib/"* ]] || [[ "$dir" == *"/build/"* ]]; then
         continue
     fi
     echo "Running tests in $dir"

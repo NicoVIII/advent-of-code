@@ -1,9 +1,7 @@
-import argv
 import gleam/int
-import gleam/io
 import gleam/list
 import gleam/string
-import simplifile
+import solutionbase
 
 type Level =
   Int
@@ -42,12 +40,13 @@ fn is_report_valid(report: Report) {
   { all_increasing || all_decreasing } && no_jumps
 }
 
-pub fn part1(reports: Data) -> Int {
+pub fn solve_part1(reports: Data) -> String {
   // Calculate
   list.count(reports, is_report_valid)
+  |> int.to_string
 }
 
-pub fn part2(reports: Data) -> Int {
+pub fn solve_part2(reports: Data) -> String {
   list.count(reports, fn(report) {
     // Generate tolerated reports
     int.range(list.length(report), -1, [], list.prepend)
@@ -56,16 +55,9 @@ pub fn part2(reports: Data) -> Int {
     })
     |> list.any(is_report_valid)
   })
+  |> int.to_string
 }
 
 pub fn main() {
-  case argv.load().arguments {
-    [input_file] -> {
-      let assert Ok(input) = simplifile.read(input_file)
-      let data = parse(input)
-      io.println("Part 1: " <> { part1(data) |> int.to_string })
-      io.println("Part 2: " <> { part2(data) |> int.to_string })
-    }
-    _ -> io.println("Usage: gleam run -- <input-file>")
-  }
+  solutionbase.run(parse, solve_part1, solve_part2)
 }
