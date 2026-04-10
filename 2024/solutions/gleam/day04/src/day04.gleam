@@ -159,12 +159,48 @@ pub fn part1(data: Data) -> Int {
   })
 }
 
+pub fn part2(data: Data) -> Int {
+  let get = fn(key) {
+    let assert Ok(value) = dict.get(data.dict, key)
+    value
+  }
+
+  data.dict
+  |> dict.to_list()
+  |> list.count(fn(entry) {
+    let #(key, _) = entry
+    let #(x, y) = key
+    use <- bool.guard(x == 0, False)
+    use <- bool.guard(y == 0, False)
+    use <- bool.guard(x == data.x_max, False)
+    use <- bool.guard(y == data.y_max, False)
+    use <- bool.guard(get(key) != "A", False)
+    let top_left = get(#(x - 1, y - 1))
+    let top_right = get(#(x + 1, y - 1))
+    let bottom_left = get(#(x - 1, y + 1))
+    let bottom_right = get(#(x + 1, y + 1))
+
+    let diag1 =
+      top_left == "M"
+      && bottom_right == "S"
+      || top_left == "S"
+      && bottom_right == "M"
+    let diag2 =
+      top_right == "M"
+      && bottom_left == "S"
+      || top_right == "S"
+      && bottom_left == "M"
+    diag1 && diag2
+  })
+}
+
 pub fn main() {
   case argv.load().arguments {
     [input_file] -> {
       let assert Ok(input) = simplifile.read(input_file)
-      let data1 = parse(input)
-      io.println("Part 1: " <> { part1(data1) |> int.to_string })
+      let data = parse(input)
+      io.println("Part 1: " <> { part1(data) |> int.to_string })
+      io.println("Part 2: " <> { part2(data) |> int.to_string })
     }
     _ -> io.println("Usage: gleam run -- <input-file>")
   }
