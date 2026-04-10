@@ -1,0 +1,54 @@
+import dial
+import gleam/int
+import gleam/list
+import gleam/pair
+import gleam/string
+import solutionbase
+
+pub type Instruction {
+  TurnLeft(Int)
+  TurnRight(Int)
+}
+
+pub fn parse(input: String) -> List(Instruction) {
+  input
+  |> string.trim()
+  |> string.split("\n")
+  |> list.map(fn(line) {
+    let assert Ok(parts) = string.pop_grapheme(line)
+    case parts {
+      #("L", clicks) -> {
+        let assert Ok(clicks) = int.parse(clicks)
+        TurnLeft(clicks)
+      }
+      #("R", clicks) -> {
+        let assert Ok(clicks) = int.parse(clicks)
+        TurnRight(clicks)
+      }
+      _ -> panic as "Invalid instruction format!"
+    }
+  })
+}
+
+pub fn solve_part1(instructions: List(Instruction)) -> String {
+  list.fold(instructions, #(dial.new_exn(50), 0), fn(acc, instruction) -> #(
+    dial.T,
+    Int,
+  ) {
+    let #(dial, zeros) = acc
+    let new_dial = case instruction {
+      TurnLeft(clicks) -> dial.turn_left(dial, clicks)
+      TurnRight(clicks) -> dial.turn_right(dial, clicks)
+    }
+    case dial.value(new_dial) {
+      0 -> #(new_dial, zeros + 1)
+      _ -> #(new_dial, zeros)
+    }
+  })
+  |> pair.second
+  |> int.to_string()
+}
+
+pub fn main() -> Nil {
+  solutionbase.run(parse, solve_part1, fn(_data) { "-" })
+}
