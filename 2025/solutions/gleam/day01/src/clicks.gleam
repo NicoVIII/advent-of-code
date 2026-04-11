@@ -1,17 +1,21 @@
 import gleam/int
 
 pub opaque type T {
-  T(value: Int)
+  Clicks(value: Int)
 }
 
-pub fn new(value: Int) -> Result(T, Nil) {
+// Nicer type alias for unqualified usage/imports
+pub type Clicks =
+  T
+
+pub fn new(value: Int) -> Result(Clicks, Nil) {
   case value <= 0 {
     True -> Error(Nil)
-    False -> Ok(T(value))
+    False -> Ok(Clicks(value))
   }
 }
 
-pub fn new_exn(value: Int) -> T {
+pub fn new_exn(value: Int) -> Clicks {
   case new(value) {
     Ok(clicks) -> clicks
     Error(Nil) ->
@@ -19,6 +23,6 @@ pub fn new_exn(value: Int) -> T {
   }
 }
 
-pub fn value(clicks: T) -> Int {
+pub fn value(clicks: Clicks) -> Int {
   clicks.value
 }

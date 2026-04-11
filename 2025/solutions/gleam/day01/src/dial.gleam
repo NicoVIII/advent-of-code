@@ -2,21 +2,25 @@ import clicks
 import gleam/int
 
 pub opaque type T {
-  T(position: Int)
+  Dial(position: Int)
 }
 
-pub fn position(dial: T) -> Int {
+// Nicer type alias for unqualified usage/imports
+pub type Dial =
+  T
+
+pub fn position(dial: Dial) -> Int {
   dial.position
 }
 
-pub fn new(position: Int) -> Result(T, Nil) {
+pub fn new(position: Int) -> Result(Dial, Nil) {
   case position {
     pos if pos < 0 || pos > 99 -> Error(Nil)
-    _ -> Ok(T(position))
+    _ -> Ok(Dial(position))
   }
 }
 
-pub fn new_exn(position: Int) -> T {
+pub fn new_exn(position: Int) -> Dial {
   case new(position) {
     Ok(dial_position) -> dial_position
     Error(Nil) ->
@@ -26,20 +30,20 @@ pub fn new_exn(position: Int) -> T {
   }
 }
 
-fn turn(dial: T, change: Int) -> T {
+fn turn(dial: Dial, change: Int) -> Dial {
   let assert Ok(new_position) = int.modulo(position(dial) + change, 100)
   new_exn(new_position)
 }
 
-pub fn turn_left(dial: T, clicks: clicks.T) -> T {
+pub fn turn_left(dial: Dial, clicks: clicks.T) -> Dial {
   turn(dial, -clicks.value(clicks))
 }
 
-pub fn turn_right(dial: T, clicks: clicks.T) -> T {
+pub fn turn_right(dial: Dial, clicks: clicks.T) -> Dial {
   turn(dial, clicks.value(clicks))
 }
 
-fn turn_and_count_zero_passes(dial: T, change: Int) -> #(T, Int) {
+fn turn_and_count_zero_passes(dial: Dial, change: Int) -> #(Dial, Int) {
   let absolute_change = int.absolute_value(change)
   let assert Ok(full_rounds) = absolute_change |> int.divide(by: 100)
   let normalized_change = change % 100
@@ -57,10 +61,16 @@ fn turn_and_count_zero_passes(dial: T, change: Int) -> #(T, Int) {
   #(new_dial, zero_passes)
 }
 
-pub fn turn_left_and_count_zero_passes(dial: T, clicks: clicks.T) -> #(T, Int) {
+pub fn turn_left_and_count_zero_passes(
+  dial: Dial,
+  clicks: clicks.T,
+) -> #(Dial, Int) {
   turn_and_count_zero_passes(dial, -clicks.value(clicks))
 }
 
-pub fn turn_right_and_count_zero_passes(dial: T, clicks: clicks.T) -> #(T, Int) {
+pub fn turn_right_and_count_zero_passes(
+  dial: Dial,
+  clicks: clicks.T,
+) -> #(Dial, Int) {
   turn_and_count_zero_passes(dial, clicks.value(clicks))
 }
