@@ -1,8 +1,9 @@
+import clicks
 import gleam/int
 import gleam/option.{type Option, None, Some}
 
 pub opaque type T {
-  Dial(position: Int)
+  T(position: Int)
 }
 
 pub fn position(dial: T) -> Int {
@@ -12,7 +13,7 @@ pub fn position(dial: T) -> Int {
 pub fn new(position: Int) -> Option(T) {
   case position {
     pos if pos < 0 || pos > 99 -> None
-    _ -> Some(Dial(position))
+    _ -> Some(T(position))
   }
 }
 
@@ -31,12 +32,12 @@ fn turn(dial: T, change: Int) -> T {
   new_exn(new_position)
 }
 
-pub fn turn_left(dial: T, clicks: Int) -> T {
-  turn(dial, -clicks)
+pub fn turn_left(dial: T, clicks: clicks.T) -> T {
+  turn(dial, -clicks.value(clicks))
 }
 
-pub fn turn_right(dial: T, clicks: Int) -> T {
-  turn(dial, clicks)
+pub fn turn_right(dial: T, clicks: clicks.T) -> T {
+  turn(dial, clicks.value(clicks))
 }
 
 fn turn_and_count_zero_passes(dial: T, change: Int) -> #(T, Int) {
@@ -57,10 +58,10 @@ fn turn_and_count_zero_passes(dial: T, change: Int) -> #(T, Int) {
   #(new_dial, zero_passes)
 }
 
-pub fn turn_left_and_count_zero_passes(dial: T, clicks: Int) -> #(T, Int) {
-  turn_and_count_zero_passes(dial, -clicks)
+pub fn turn_left_and_count_zero_passes(dial: T, clicks: clicks.T) -> #(T, Int) {
+  turn_and_count_zero_passes(dial, -clicks.value(clicks))
 }
 
-pub fn turn_right_and_count_zero_passes(dial: T, clicks: Int) -> #(T, Int) {
-  turn_and_count_zero_passes(dial, clicks)
+pub fn turn_right_and_count_zero_passes(dial: T, clicks: clicks.T) -> #(T, Int) {
+  turn_and_count_zero_passes(dial, clicks.value(clicks))
 }

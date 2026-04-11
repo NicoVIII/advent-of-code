@@ -1,3 +1,4 @@
+import clicks
 import dial
 import gleam/int
 import gleam/list
@@ -6,8 +7,8 @@ import gleam/string
 import solutionbase
 
 pub type Instruction {
-  TurnLeft(Int)
-  TurnRight(Int)
+  TurnLeft(clicks.T)
+  TurnRight(clicks.T)
 }
 
 pub fn parse(input: String) -> List(Instruction) {
@@ -19,11 +20,11 @@ pub fn parse(input: String) -> List(Instruction) {
     case parts {
       #("L", clicks) -> {
         let assert Ok(clicks) = int.parse(clicks)
-        TurnLeft(clicks)
+        TurnLeft(clicks.new_exn(clicks))
       }
       #("R", clicks) -> {
         let assert Ok(clicks) = int.parse(clicks)
-        TurnRight(clicks)
+        TurnRight(clicks.new_exn(clicks))
       }
       _ -> panic as "Invalid instruction format!"
     }
