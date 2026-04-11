@@ -51,7 +51,7 @@ pub fn run_for_testset(
       _, _, _, _ -> Nil
     }
 
-    let preprocessed_data = preprocess(input)
+    let preprocessed_data = input |> string.trim() |> preprocess()
     case solve_part1, part1_expected {
       Some(part1), Some(expected) -> {
         let actual = part1(preprocessed_data)

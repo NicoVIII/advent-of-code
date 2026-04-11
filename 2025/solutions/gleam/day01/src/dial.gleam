@@ -1,6 +1,5 @@
 import clicks
 import gleam/int
-import gleam/option.{type Option, None, Some}
 
 pub opaque type T {
   T(position: Int)
@@ -10,20 +9,20 @@ pub fn position(dial: T) -> Int {
   dial.position
 }
 
-pub fn new(position: Int) -> Option(T) {
+pub fn new(position: Int) -> Result(T, Nil) {
   case position {
-    pos if pos < 0 || pos > 99 -> None
-    _ -> Some(T(position))
+    pos if pos < 0 || pos > 99 -> Error(Nil)
+    _ -> Ok(T(position))
   }
 }
 
 pub fn new_exn(position: Int) -> T {
   case new(position) {
-    None ->
+    Ok(dial_position) -> dial_position
+    Error(Nil) ->
       panic as {
         "Invalid dial position given: " <> int.to_string(position) <> "!"
       }
-    Some(dial_position) -> dial_position
   }
 }
 

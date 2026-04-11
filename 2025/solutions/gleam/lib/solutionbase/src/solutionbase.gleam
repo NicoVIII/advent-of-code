@@ -1,5 +1,6 @@
 import argv
 import gleam/io
+import gleam/string
 import simplifile
 
 pub type PuzzleSolution(a) {
@@ -14,7 +15,7 @@ pub fn run(
   case argv.load().arguments {
     [input_file] -> {
       let assert Ok(input) = simplifile.read(input_file)
-      let preprocessed_data = preprocess(input)
+      let preprocessed_data = input |> string.trim() |> preprocess()
       io.println("Part 1: " <> solve_part1(preprocessed_data))
       io.println("Part 2: " <> solve_part2(preprocessed_data))
     }

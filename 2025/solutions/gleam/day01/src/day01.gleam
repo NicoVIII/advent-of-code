@@ -13,7 +13,6 @@ pub type Instruction {
 
 pub fn parse(input: String) -> List(Instruction) {
   input
-  |> string.trim()
   |> string.split("\n")
   |> list.map(fn(line) {
     let assert Ok(parts) = string.pop_grapheme(line)
