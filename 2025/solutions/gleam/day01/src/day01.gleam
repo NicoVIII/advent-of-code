@@ -40,10 +40,26 @@ pub fn solve_part1(instructions: List(Instruction)) -> String {
       TurnLeft(clicks) -> dial.turn_left(dial, clicks)
       TurnRight(clicks) -> dial.turn_right(dial, clicks)
     }
-    case dial.value(new_dial) {
+    case dial.position(new_dial) {
       0 -> #(new_dial, zeros + 1)
       _ -> #(new_dial, zeros)
     }
+  })
+  |> pair.second
+  |> int.to_string()
+}
+
+pub fn solve_part2(instructions: List(Instruction)) -> String {
+  list.fold(instructions, #(dial.new_exn(50), 0), fn(acc, instruction) -> #(
+    dial.T,
+    Int,
+  ) {
+    let #(dial, zeros) = acc
+    let #(new_dial, zero_passes) = case instruction {
+      TurnLeft(clicks) -> dial.turn_left_and_count_zero_passes(dial, clicks)
+      TurnRight(clicks) -> dial.turn_right_and_count_zero_passes(dial, clicks)
+    }
+    #(new_dial, zeros + zero_passes)
   })
   |> pair.second
   |> int.to_string()
