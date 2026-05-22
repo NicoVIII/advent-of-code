@@ -66,5 +66,5 @@ pub fn solve_part2(instructions: List(Instruction)) -> String {
 }
 
 pub fn main() -> Nil {
-  solutionbase.run(parse, solve_part1, fn(_data) { "-" })
+  solutionbase.run(parse, solve_part1, solve_part2)
 }
